@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import { pagamentoService } from '../services/pagamento.service'
 import { authMiddleware } from '../middlewares/authMiddleware'
 import { roleMiddleware } from '../middlewares/roleMiddleware'
@@ -12,12 +12,15 @@ router.post(
   authMiddleware,
   roleMiddleware('CLIENTE'),
   validateMiddleware(MockPagamentoInputDTO),
-  async (req: Request, res: Response) => {
-    const usuarioUuid = req.usuario!.sub
-    const { pedidoUuid } = req.body
-
-    const resultado = await pagamentoService.mock(usuarioUuid, pedidoUuid)
-    res.status(200).json(resultado)
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const usuarioUuid = req.usuario!.sub
+      const { pedidoUuid } = req.body
+      const resultado = await pagamentoService.mock(usuarioUuid, pedidoUuid)
+      res.status(200).json(resultado)
+    } catch (error) {
+      next(error)
+    }
   }
 )
 

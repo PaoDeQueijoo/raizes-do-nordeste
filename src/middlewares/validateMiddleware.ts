@@ -13,9 +13,10 @@ export function validateMiddleware<T extends z.ZodSchema>(schema: T) {
           campo: err.path.join('.'),
           mensagem: err.message,
         }))
-        throw new ValidationException('Erro de validação nos dados enviados', details)
+        next(new ValidationException('Erro de validação nos dados enviados', details))
+        return
       }
-      throw error
+      next(error)
     }
   }
 }

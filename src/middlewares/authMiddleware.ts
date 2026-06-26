@@ -14,13 +14,15 @@ export function authMiddleware(req: Request, _res: Response, next: NextFunction)
   const authHeader = req.headers.authorization
 
   if (!authHeader) {
-    throw new UnauthorizedException('Token não fornecido')
+    next(new UnauthorizedException('Token não fornecido'))
+    return
   }
 
   const parts = authHeader.split(' ')
 
   if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    throw new UnauthorizedException('Formato de token inválido')
+    next(new UnauthorizedException('Formato de token inválido'))
+    return
   }
 
   const token = parts[1]
@@ -30,6 +32,6 @@ export function authMiddleware(req: Request, _res: Response, next: NextFunction)
     req.usuario = payload
     next()
   } catch (error) {
-    throw new UnauthorizedException('Token inválido ou expirado')
+    next(new UnauthorizedException('Token inválido ou expirado'))
   }
 }
